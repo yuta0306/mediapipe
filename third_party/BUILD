@@ -148,8 +148,10 @@ OPENCV_MODULES = [
 # other. We build shared libraries by default, but this variable can be used
 # to switch to static libraries.
 OPENCV_SHARED_LIBS = True
+# OPENCV_SHARED_LIBS = False  # change `https://github.com/google/mediapipe/issues/2451`
 
-OPENCV_SO_VERSION = "3.4"
+# OPENCV_SO_VERSION = "3.4"
+OPENCV_SO_VERSION = "4.5"  # change
 
 cmake(
     name = "opencv_cmake",
@@ -176,6 +178,7 @@ cmake(
         "WITH_EIGEN": "ON",
         "WITH_PTHREADS": "ON",
         "WITH_PTHREADS_PF": "ON",
+        "WITH_IPP": "OFF",  # add
         # When building tests, by default Bazel builds them in dynamic mode.
         # See https://docs.bazel.build/versions/master/be/c-cpp.html#cc_binary.linkstatic
         # For example, when building //mediapipe/calculators/video:opencv_video_encoder_calculator_test,
@@ -221,11 +224,12 @@ cmake(
         "-lavformat",
         "-lavutil",
         "-lswscale",
-        "-lavresample",
+        "-lswresample",  # avresample unavailable in Ubuntu 22.04
         "-ldl",
         "-lm",
         "-lpthread",
         "-lrt",
+        "-lopenblas",  # undefined symbol: dgeqrf_
     ],
     out_shared_libs = select({
         "@bazel_tools//src/conditions:darwin": ["libopencv_%s.%s.dylib" % (module, OPENCV_SO_VERSION) for module in OPENCV_MODULES],
